@@ -1,17 +1,20 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:myproject/Iot_Monitoring.dart';
+import 'package:myproject/contactus.dart';
 import 'package:myproject/firebase_options.dart';
 import 'package:myproject/first.dart';
+import 'package:myproject/helpsupport.dart';
 import 'package:myproject/home.dart';
 import 'package:myproject/humidity.dart';
 import 'package:myproject/lamp.dart';
 import 'package:myproject/logout.dart';
+import 'package:myproject/pump.dart';
 import 'package:myproject/rssi.dart';
 import 'package:myproject/settings.dart';
 import 'package:myproject/signin_screen.dart';
 import 'package:myproject/soil.dart';
 import 'package:myproject/temperature.dart';
+import 'package:myproject/videotutorial.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +26,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: FirstPage(),
+      home: Homepage(),
         routes: {
           '/home': (context) => Homepage(),
           '/temperature': (context) => TemperaturePage(),
@@ -44,8 +45,11 @@ class MyApp extends StatelessWidget {
           '/settings': (context) => SettingsPage(),
           '/logout': (context) => LogoutPage(),
           '/first': (context) => FirstPage(),
+          '/helpsupport': (context) => HelpSupportPage(),
+          '/contact': (context) => ContactUsPage(),
+          '/tutorials': (context) => VideoTutorialsPage(),
+          '/pump': (context) => PumpPage(),
         }
-      // Corrected instantiation of FirstPage
     );
   }
 }

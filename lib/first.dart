@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myproject/welcome_screen.dart'; // Import WelcomeScreen
+import 'package:myproject/welcome_screen.dart';
 
 class FirstPage extends StatelessWidget {
   @override
@@ -16,7 +16,7 @@ class FirstPage extends StatelessWidget {
           Container(
             width: double.infinity,
             height: double.infinity,
-            color: Colors.black.withOpacity(0.3), // Transparent overlay
+            color: Colors.black.withOpacity(0.3),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -25,7 +25,7 @@ class FirstPage extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 margin: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8), // Semi-transparent box
+                  color: Colors.white.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(

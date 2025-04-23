@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myproject/first.dart';
+import 'package:myproject/logout.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -15,13 +16,16 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    String userName = user?.displayName ?? "User"; // Fetch name from Firebase
-    String currentDate = DateFormat('EEEE, MMM d').format(DateTime.now()); // Get date
+    String userName = user?.displayName ?? "User";
+    String currentDate = DateFormat('EEEE, d MMMM').format(DateTime.now());
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -29,30 +33,39 @@ class _HomepageState extends State<Homepage> {
             );
           },
         ),
-        title: Text(
-          "Welcome, $userName!",
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
         actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'settings') {
-                Navigator.pushNamed(context, '/settings');
-              } else if (value == 'help') {
-                Navigator.pushNamed(context, '/help');
-              } else if (value == 'logout') {
-                FirebaseAuth.instance.signOut();
-                Navigator.pushReplacementNamed(context, '/login');
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem(value: 'settings', child: Text('Settings')),
-                const PopupMenuItem(value: 'help', child: Text('Help Support')),
-                const PopupMenuItem(value: 'logout', child: Text('Log Out')),
-              ];
-            },
+          Theme(
+            data: Theme.of(context).copyWith(
+              popupMenuTheme: PopupMenuThemeData(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: const TextStyle(color: Colors.black),
+              ),
+            ),
+            child: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.black),
+              onSelected: (value) {
+                if (value == 'settings') {
+                  Navigator.pushNamed(context, '/settings');
+                } else if (value == 'help') {
+                  Navigator.pushNamed(context, '/helpsupport');
+                } else if (value == 'logout') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LogoutPage()),
+                  );
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem(value: 'settings', child: Text('Settings')),
+                  const PopupMenuItem(value: 'help', child: Text('Help Support')),
+                  const PopupMenuItem(value: 'logout', child: Text('Log Out')),
+                ];
+              },
+            ),
           ),
         ],
       ),
@@ -60,100 +73,33 @@ class _HomepageState extends State<Homepage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Main Box
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                children: [
-                  // Temperature + Feelings Section
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Temperature Section
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        height: 120,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 5,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Temperature:",
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              "24°C",
-                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blue),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-
-                      // Feelings Section
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "How are you feeling today?",
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(height: 10),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: [
-                                _buildFeelingButton("😞", "Sad"),
-                                _buildFeelingButton("😊", "Happy"),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Date Display
-                  Text(
-                    currentDate,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
+            Text(
+              "Welcome, $userName!",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 20),
-
-            // **Scrollable Slider Section (Larger Cards)**
-            SizedBox(
-              height: 450,
+            Row(
+              children: [
+                Expanded(child: _buildInfoCard('Today', currentDate)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildInfoCard('Temperature', "24°C")),
+              ],
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              "Monitor your systems",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
               child: ListView(
-                scrollDirection: Axis.horizontal,
                 children: [
-                  _buildCard(context, "Humidity", "/humidity"),
-                  _buildCard(context, "Temperature", "/temperature"),
-                  _buildCard(context, "Lamp", "/lamp"),
-                  _buildCard(context, "RSSI", "/rssi"),
-                  _buildCard(context, "Soil Moisture", "/soil_moisture"),
+                  _buildSensorTile(context, Icons.water_drop, 'humidity', '/humidity'),
+                  _buildSensorTile(context, Icons.thermostat, 'temperature', '/temperature'),
+                  _buildSensorTile(context, Icons.lightbulb, 'lamp', '/lamp'),
+                  _buildSensorTile(context, Icons.water, 'pump', '/pump'),
+                  _buildSensorTile(context, Icons.signal_cellular_alt, 'rssi', '/rssi'),
+                  _buildSensorTile(context, Icons.grass, 'soil moisture', '/soil_moisture'),
                 ],
               ),
             ),
@@ -163,74 +109,53 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // Feelings Button
-  Widget _buildFeelingButton(String emoji, String label) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.grey),
-        ),
+  Widget _buildInfoCard(String title, String value) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey[50],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
-          const SizedBox(width: 5),
-          Text(label, style: const TextStyle(fontSize: 16, color: Colors.black)),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Text(value, textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
-  // Scrollable Cards
-  Widget _buildCard(BuildContext context, String title, String route) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, route);
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.5,
-        margin: const EdgeInsets.only(right: 15),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              blurRadius: 8,
-              spreadRadius: 3,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              title == "Humidity"
-                  ? Icons.water_drop
-                  : title == "Temperature"
-                  ? Icons.thermostat
-                  : title == "Lamp"
-                  ? Icons.lightbulb
-                  : title == "RSSI"
-                  ? Icons.signal_cellular_alt
-                  : Icons.grass, // Default icon for soil moisture
-              size: 55,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 15),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+  Widget _buildSensorTile(BuildContext context, IconData icon, String label, String route) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        leading: Icon(icon, color: Colors.blueGrey),
+        title: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+        onTap: () {
+          Navigator.pushNamed(context, route);
+        },
       ),
     );
   }

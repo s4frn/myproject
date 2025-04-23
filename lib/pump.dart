@@ -1,39 +1,41 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-class SoilPage extends StatefulWidget {
-  const SoilPage({super.key});
+class PumpPage extends StatefulWidget {
+  const PumpPage({super.key});
 
   @override
-  State<SoilPage> createState() => _SoilPageState();
+  State<PumpPage> createState() => _PumpPageState();
 }
 
-class _SoilPageState extends State<SoilPage> {
+class _PumpPageState extends State<PumpPage> {
   final DatabaseReference myRTDB = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
-    databaseURL: "https://project-f43c4-default-rtdb.asia-southeast1.firebasedatabase.app/",).ref();
-  String soil_moistureValue = '0';
+    databaseURL: "https://project-f43c4-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  ).ref();
 
-  void _readSensorValue(){
+  bool pumpSwitch = false;
 
-    myRTDB.child('Sensor/soil_moisture').onValue.listen(
-            (event){
-          final Object? soil_moistureData = event.snapshot.value;
-          setState(() {
-            soil_moistureValue = soil_moistureData.toString();
-          });
-        }
-    );
+  void loadPumpStatus() {
+    myRTDB.child('Actuator/pump').onValue.listen((event) {
+      final data = event.snapshot.value;
+      setState(() {
+        pumpSwitch = data == true;
+      });
+    });
+  }
+
+  void updatePumpSwitch(bool value) {
+    myRTDB.child('Actuator/pump').set(value);
   }
 
   @override
   void initState() {
     super.initState();
-    _readSensorValue();
+    loadPumpStatus();
   }
 
   @override
@@ -80,45 +82,46 @@ class _SoilPageState extends State<SoilPage> {
           children: [
             Row(
               children: [
-                Expanded(child: _buildInfoCard('Today', currentDate)),
+                Expanded(child: _buildInfoCard("Today", currentDate)),
                 const SizedBox(width: 16),
-                Expanded(child: _buildInfoCard('Soil Moisture', "$soil_moistureValue %")),
+                Expanded(child: _buildInfoCard("Let's control", "your pump!")),
               ],
             ),
 
-            const SizedBox(height: 30),
-            const Text(
-              "Current Soil Moisture",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             Expanded(
+              flex: 2,
               child: Center(
-                child: SfRadialGauge(
-                  axes: <RadialAxis>[
-                    RadialAxis(
-                      minimum: 0,
-                      maximum: 100,
-                      ranges: <GaugeRange>[
-                        GaugeRange(startValue: 0, endValue: 30, color: Colors.red),
-                        GaugeRange(startValue: 30, endValue: 60, color: Colors.orange),
-                        GaugeRange(startValue: 60, endValue: 100, color: Colors.green),
-                      ],
-                      pointers: <GaugePointer>[
-                        NeedlePointer(value: double.tryParse(soil_moistureValue) ?? 0),
-                      ],
-                      annotations: <GaugeAnnotation>[
-                        GaugeAnnotation(
-                          widget: Text(
-                            "$soil_moistureValue %",
-                            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                          ),
-                          angle: 90,
-                          positionFactor: 0.6,
-                        ),
-                      ],
-                    ),
-                  ],
+                child: Container(
+                  width: double.infinity,
+                  height: 600,
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey[50],
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Icon(Icons.water, size: 120, color: Colors.blue),
+                      const Text("Pump", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                      Switch(
+                        value: pumpSwitch,
+                        onChanged: (bool value) => updatePumpSwitch(value),
+                        activeColor: Colors.blue,
+                        inactiveThumbColor: Colors.grey,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
